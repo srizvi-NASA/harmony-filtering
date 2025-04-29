@@ -1,0 +1,25 @@
+[project]
+name = "harmony-filtering"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Syed Rizvi",email = "syed.r.rizvi@nasa.gov"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "harmony-service-lib (>=2.6.0,<3.0.0)"
+]
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+black = "^25.1.0"
+ruff = "^0.11.7"
+mypy = "^1.15.0"
+pylint = "^3.3.6"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

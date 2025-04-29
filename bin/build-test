@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+###############################################################################
+# build-test
+#
+# Usage:
+#   bin/build-test [<version>] [--no-delete]
+#   (defaults to the tag in docker/service_version.txt or "latest")
+###############################################################################
+
+# Base name for your test image
+IMAGE="harmony/filtering-test"
+
+# Determine tag (first arg or service_version.txt or "latest")
+if [[ -n "$1" && "$1" != "--no-delete" ]]; then
+  TAG="$1"
+elif [[ -f docker/service_version.txt ]]; then
+  TAG="$(<docker/service_version.txt)"
+else
+  TAG="latest"
+fi
+
+# Optionally skip deletion if --no-delete passed as second arg
+DELETE="${2:-delete}"
+
+# Remove old image if it exists and deletion not suppressed
+old=$(docker images | grep "^${IMAGE}[[:space:]]" | grep "[[:space:]]${TAG}[[:space:]]" | awk '{print $3}')
+if [[ -n "$old" && "$DELETE" != "--no-delete" ]]; then
+    echo "Removing old test image ${IMAGE}:${TAG} (${old})"
+    docker rmi "$old"
+fi
+
+# Build the test image
+docker build --platform linux/amd64 \
+  -f docker/tests.Dockerfile \
+  -t "${IMAGE}:${TAG}" \
+  .
+
+echo "Built test image ${IMAGE}:${TAG}"

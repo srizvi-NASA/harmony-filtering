@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+###############################################################################
+# clean-images
+#
+# Remove old Docker images for the Harmony Filtering Service.
+###############################################################################
+
+IMAGE="harmony/filtering"
+
+# Determine the version tag to remove (fall back to "latest" if no service_version.txt)
+if [[ -f docker/service_version.txt ]]; then
+  TAG="$(<docker/service_version.txt)"
+else
+  TAG="latest"
+fi
+
+echo "Removing images ${IMAGE}:${TAG} and ${IMAGE}:latest"
+docker rmi "${IMAGE}:${TAG}" "${IMAGE}:latest" 2>/dev/null || true

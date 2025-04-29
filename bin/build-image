@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+###############################################################################
+# build-image
+#
+# Usage:
+#   bin/build-image [<version>]
+#   (defaults to the tag in docker/service_version.txt or "latest")
+###############################################################################
+
+# The Docker image name for your service
+IMAGE="harmony/filtering"
+
+# If a version tag is passed in, use it; otherwise fall back to service_version.txt or "latest"
+if [[ -n "$1" ]]; then
+  TAG="$1"
+elif [[ -f docker/service_version.txt ]]; then
+  TAG="$(<docker/service_version.txt)"
+else
+  TAG="latest"
+fi
+
+# Clean out old images first
+./bin/clean-images
+
+# Build the service image, tagging both with the version and "latest"
+docker build --platform linux/amd64 \
+  -f docker/service.Dockerfile \
+  -t "${IMAGE}:${TAG}" \
+  -t "${IMAGE}:latest" \
+  .
+
+echo "Built ${IMAGE}:${TAG} and ${IMAGE}:latest"

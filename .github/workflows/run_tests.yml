@@ -1,0 +1,11 @@
+name: run tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build service image
+        run: docker build -f docker/service.Dockerfile -t harmony-filtering:ci .
+      - name: Run tests
+        run: docker build -f docker/tests.Dockerfile -t harmony-filtering-tests:ci . &&              docker run --rm harmony-filtering-tests:ci
