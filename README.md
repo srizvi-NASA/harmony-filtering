@@ -75,10 +75,8 @@ The **Harmony Filtering Service** is a microservice in the NASA Harmony ecosyste
     flask run --port 3000
 
 ## Testing
+   ```bash
     poetry run pytest
     
-##License
-
-This project will be licensed under the Apache 2.0 License — see LICENSE for details.
 
 
