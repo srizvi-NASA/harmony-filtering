@@ -57,7 +57,6 @@ The **Harmony Filtering Service** is a microservice in the NASA Harmony ecosyste
 ### Running the Service
 
 #### Locally via Docker
-   ```bash
     export EDL_USER=<your-user>
     export EDL_PASSWORD=<your-pass>
     export HARMONY_HOST_URL=https://harmony.uat.earthdata.nasa.gov
