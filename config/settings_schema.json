@@ -1,0 +1,67 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Settings Schema",
+    "type": "object",
+    "properties": {
+      "data_dir": {
+        "type": "string"
+      },
+      "config_path": {
+        "type": "string"
+      },
+      "output_dir": {
+        "type": "string"
+      },
+      "logging": {
+        "type": "object",
+        "properties": {
+          "log_to_console": {
+            "type": "boolean"
+          },
+          "log_to_file": {
+            "type": "boolean"
+          },
+          "log_file_path": {
+            "type": "string"
+          },
+          "log_level": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "log_to_console",
+          "log_to_file",
+          "log_file_path",
+          "log_level"
+        ]
+      },
+      "test": {
+        "type": "object",
+        "properties": {
+          "data_dir": {
+            "type": "string"
+          },
+          "output_dir": {
+            "type": "string"
+          },
+          "remove_after_test": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data_dir",
+          "output_dir",
+          "remove_after_test"
+        ]
+      }
+    },
+    "required": [
+      "data_dir",
+      "config_path",
+      "output_dir",
+      "logging",
+      "test"
+    ],
+    "additionalProperties": false
+  }
+  

@@ -1,0 +1,15 @@
+# Notebook UI
+jupyterlab
+notebook
+
+# Core dependencies
+harmony-service-lib>=2.6.0,<3.0.0
+numpy>=1.20.0
+xarray>=2022.11.0
+netCDF4>=1.5.6
+matplotlib
+jsonschema>=4.23.0
+earthaccess>=0.14.0
+
+# For plotting inline
+ipykernel

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#####set -euo pipefail
 ###############################################################################
 # build-image
 #
@@ -7,11 +8,15 @@
 #   (defaults to the tag in docker/service_version.txt or "latest")
 ###############################################################################
 
+# Enable BuildKit and experimental features so --platform is honored
+#####export DOCKER_BUILDKIT=1
+#####export DOCKER_CLI_EXPERIMENTAL=enabled
+
 # The Docker image name for your service
 IMAGE="harmony/filtering"
 
 # If a version tag is passed in, use it; otherwise fall back to service_version.txt or "latest"
-if [[ -n "$1" ]]; then
+if [[ -n "${1-}" ]]; then
   TAG="$1"
 elif [[ -f docker/service_version.txt ]]; then
   TAG="$(<docker/service_version.txt)"
@@ -21,6 +26,19 @@ fi
 
 # Clean out old images first
 ./bin/clean-images
+
+# Build the service image for linux/amd64 and tag both with the version and "latest"
+# docker build \
+#   --platform linux/amd64 \
+#   -f docker/service.Dockerfile \
+#   -t "${IMAGE}:${TAG}" \
+#   -t "${IMAGE}:latest" \
+#   .
+
+#echo "✅  Built ${IMAGE}:${TAG} and ${IMAGE}:latest for linux/amd64"
+
+
+
 
 # Build the service image, tagging both with the version and "latest"
 docker build --platform linux/amd64 \

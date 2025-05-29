@@ -1,0 +1,158 @@
+{
+  "O3TOT": {
+    "filters": {
+      "pixel_filter": [
+        {
+          "target_var": "product/column_amount_o3",
+          "criteria_var": "geolocation/solar_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/column_amount_o3",
+          "criteria_var": "product/quality_flag",
+          "operator": "greater-than-or-equal-to",
+          "threshold": "4096",
+          "target_value": "nan",
+          "level": "2"
+        },
+        {
+          "target_var": "product/fc",
+          "criteria_var": "geolocation/solar_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/uv_aerosol_index",
+          "criteria_var": "geolocation/solar_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/uv_aerosol_index",
+          "criteria_var": "geolocation/viewing_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        }
+      ],
+      "variable_exclusion": {
+        "excluded_variables": []
+      }
+    }
+  },
+  "CLDO4": {
+    "filters": {
+      "pixel_filter": [
+        {
+          "target_var": "product/cloud_fraction",
+          "criteria_var": "geolocation/solar_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/cloud_pressure",
+          "criteria_var": "geolocation/solar_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        }
+      ],
+      "variable_exclusion": {
+        "excluded_variables": []
+      }
+    }
+  },
+  "HCHO": {
+    "filters": {
+      "pixel_filter": [
+        {
+          "target_var": "product/vertical_column",
+          "criteria_var": "product/main_data_quality_flag",
+          "operator": "greater-than",
+          "threshold": "1",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column",
+          "criteria_var": "support_data/eff_cloud_fraction",
+          "operator": "greater-than",
+          "threshold": "0.5",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column",
+          "criteria_var": "geolocation/solar_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        }
+      ],
+      "variable_exclusion": {
+        "excluded_variables": []
+      }
+    }
+  },
+  "NO2": {
+    "filters": {
+      "pixel_filter": [
+        {
+          "target_var": "product/vertical_column_stratosphere",
+          "criteria_var": "product/main_data_quality_flag",
+          "operator": "greater-than",
+          "threshold": "1",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column_stratosphere",
+          "criteria_var": "geolocation/solar_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column_troposphere",
+          "criteria_var": "product/main_data_quality_flag",
+          "operator": "greater-than",
+          "threshold": "1",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column_troposphere",
+          "criteria_var": "support_data/eff_cloud_fraction",
+          "operator": "greater-than",
+          "threshold": "0.5",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column_troposphere",
+          "criteria_var": "geolocation/solar_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        }
+      ],
+      "variable_exclusion": {
+        "excluded_variables": []
+      }
+    }
+  }
+}

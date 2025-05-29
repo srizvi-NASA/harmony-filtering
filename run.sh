@@ -5,9 +5,9 @@
 
 # Build the Docker image
 #docker build --no-cache -t harmony-filtering:latest .
-docker build --no-cache -t harmony/filtering:latest -f docker/service.Dockerfile .
+#docker build --no-cache -t harmony/filtering:latest -f docker/service.Dockerfile .
 #docker build -t harmony-filtering:latest .
-#docker build -t harmony/filtering:latest -f docker/service.Dockerfile .
+docker build -t harmony/filtering:latest -f docker/service.Dockerfile .
 
 
 # Run the Docker container

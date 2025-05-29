@@ -1,0 +1,16 @@
+{
+  "data_dir": "./data/in_data",
+  "config_path": "config.json",
+  "output_dir": "./data/out_data",
+  "logging": {
+    "log_to_console": false,
+    "log_to_file": false,
+    "log_file_path": "logs/",
+    "log_level": "RUN"
+  },
+  "test": {
+    "data_dir": "./tests/data/in_data",
+    "output_dir": "./tests/data/out_data",
+    "remove_after_test": false
+  }
+}
