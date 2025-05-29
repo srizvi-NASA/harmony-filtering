@@ -1,11 +1,88 @@
-The dockerfile has been configured to include gdal. You should modify it to include any other
-dependencies you may need for your service.
+# Harmony Filtering Service
 
-Build the service image using the ./build-service script.
+The **Harmony Filtering Service** is a microservice in the NASA Harmony ecosystem responsible for applying user-defined filters to Earth science coverages (e.g. netCDF granules).  It accepts OGC-API–Coverages /coverage/rangeset requests with filtering parameters, runs them through a configurable filter pipeline, and returns filtered coverages downstream.
 
-If your service performs a transformation on a single file you can modify the example code in
-the process_item method in the .py file to put your service logic. If your service processes
-many files at once you'll need to override and implement the invoke method.
+---
 
-See https://github.com/nasa/harmony-service-lib-py for detailed information on implementing a
-harmony service.
+## Table of Contents
+
+- [Key Features](#key-features)  
+- [Getting Started](#getting-started)  
+  - [Prerequisites](#prerequisites)  
+  - [Installation](#installation)  
+- [Configuration](#configuration)  
+- [Running the Service](#running-the-service)  
+- [API Reference](#api-reference)  
+- [Logging & Monitoring](#logging--monitoring)  
+- [Testing](#testing)  
+- [Deployment](#deployment)  
+- [Contributing](#contributing)  
+- [License](#license)  
+
+---
+
+## Key Features
+
+- **OGC-API–Coverages compliant**: Supports `/collections/{collectionId}/coverage/rangeset` POST with `variable`, `bbox`, optional filter parameters.
+- **Pluggable filter pipeline**: Chain of filter “steps” can be added via configuration (e.g. quality-flag masking, threshold clipping).
+- **Scale-out friendly**: Stateless container; stores no local state between requests.
+- **Configurable logging**: JSON-structured logs, configurable log levels, and integration with external log aggregators.
+- **Automated testing**: Unit tests, integration tests against golden-master coverages, and end-to-end smoke tests.
+
+---
+
+## Getting Started
+
+### Prerequisites
+ 
+- **Python 3.9+** (if Python-based)  
+- **Docker & Docker Compose** (for containerized local runs)  
+- **Access to Harmony’s EDL credentials** (for upstream authentication)
+
+### Installation
+
+1. **Clone the Harmony repo**  
+   ```bash
+   git clone https://github.com/nasa/harmony.git
+   cd harmony/filtering-service
+
+2. **Install Python deps**  
+   ```bash
+   pip install -r requirements.txt
+
+3. **Build Docker Image**  
+   ```bash
+   docker build -t harmony-filtering-service:local .
+
+### Running the Service
+
+#### Locally via Docker
+   ```bash
+    export EDL_USER=<your-user>
+    export EDL_PASSWORD=<your-pass>
+    export HARMONY_HOST_URL=https://harmony.uat.earthdata.nasa.gov
+    
+    docker run --rm \
+      -p 3000:3000 \
+      -e EDL_USER \
+      -e EDL_PASSWORD \
+      -e HARMONY_HOST_URL \
+      harmony-filtering-service:local
+
+#### Local without Docker
+    ```bash
+  FLASK_APP=filter_service.py \
+    EDL_USER=$EDL_USER \
+    EDL_PASSWORD=$EDL_PASSWORD \
+    HARMONY_HOST_URL=$HARMONY_HOST_URL \
+    flask run --port 3000
+
+## Testing
+   ```bash
+    poetry run pytest
+
+##License
+
+This project will be licensed under the Apache 2.0 License — see LICENSE for details.
+
+
