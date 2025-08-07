@@ -6,7 +6,6 @@ parsing filenames, copying netCDF groups, and processing products
 based on provided settings and configuration.
 """
 
-import glob
 import os
 import re
 from typing import Any, Dict, Set
@@ -15,7 +14,6 @@ import numpy as np
 import xarray as xr
 from netCDF4 import Dataset as ncDataset
 
-from harmony_filtering_service.compare import compare_nc_files
 from harmony_filtering_service.exceptions import FilteringUtilityError
 from harmony_filtering_service.logger import get_logger, log_msg
 
@@ -24,33 +22,28 @@ def parse_granule_filename(filename: str) -> Dict[str, str]:
     """
     Parse a TEMPO granule filename and extract metadata.
 
-    The filename is expected to follow a format with parts separated by underscores, e.g.:
-    "TEMPO_NO2_L3_V02_20240215T123255Z_S002.nc"
-    where:
-      - TEMPO is the instrument,
-      - NO2 is the product,
-      - L3 indicates the level (here we extract the digit "3"),
-      - V02 is the version,
-      - 20240215T123255Z is the timestamp, and
-      - S002 is the sequence.
+    Supports both standard and NRT filenames, e.g.:
+      TEMPO_NO2_L3_V02_20240215T123255Z_S002.nc
+      TEMPO_NO2_L3_NRT_V02_20250724T115622Z_S003.nc
 
-    Parameters:
-        filename: TEMPO granule filename.
-
-    Returns:
-        A dictionary with keys: "instrument", "product", "level", "version", "timestamp", "sequence".
-        Note: If the level cannot be determined, it defaults to an empty string.
+    Returns a dict with keys:
+      instrument, product, level, version, timestamp, sequence
     """
     parts = filename.split("_")
     instrument = parts[0]
     product = parts[1]
-    level_str = parts[2]
-    level_match = re.search(r"\d+", level_str)
-    # Default to an empty string if the level is not found
+
+    # find index of the version tag, e.g. "V02"
+    version_idx = next(i for i, p in enumerate(parts) if re.match(r"V\d+", p))
+
+    # level is always in parts[2] ("L3" or "L3" in both cases)
+    level_match = re.search(r"\d+", parts[2])
     level = level_match.group(0) if level_match else ""
-    version = parts[3]
-    timestamp = parts[4]
-    sequence = parts[5].split(".")[0]
+
+    version = parts[version_idx]
+    timestamp = parts[version_idx + 1]
+    sequence = parts[version_idx + 2].split(".")[0]
+
     return {
         "instrument": instrument,
         "product": product,
@@ -196,20 +189,12 @@ def copy_group(
         )
 
 
-def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
+def process_products(
+    settings: Dict[str, Any], config: Dict[str, Any], clean_fname: str
+) -> None:
     """
     Main processing loop for filtering products.
-
-    This function reads input data and configuration, applies filtering rules,
-    saves the resulting filtered netCDF files, and then compares the original
-    and filtered files for verification.
-
-    Parameters:
-        settings: Dictionary containing settings loaded from settings.json.
-                  Expected keys include "data_dir", "output_dir", and "logging" settings.
-        config: Dictionary containing product configuration loaded from config.json.
     """
-    # Extract directories and logging settings from 'settings'
     data_dir = settings["data_dir"]
     output_dir = settings["output_dir"]
     log_to_console = settings["logging"]["log_to_console"]
@@ -217,11 +202,14 @@ def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
     log_file_path = settings["logging"]["log_file_path"]
     log_level = settings["logging"]["log_level"]
 
-    # Ensure the output directory exists, create if not
+    print("=== Entered process_products ===")
+    print(
+        f"[DEBUG] Output directory contents before writing: {os.listdir(output_dir) if os.path.exists(output_dir) else 'Directory does not exist'}"
+    )
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Build a set of variables to be excluded based on the configuration
     excluded_variables: Set[str] = set()
     for product_type in config:
         ev = (
@@ -231,31 +219,21 @@ def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
         )
         excluded_variables.update(ev)
 
-    # Process each product defined in the configuration
     for product_type in config:
-        # Define the file pattern for netCDF files for this product
-        pattern = os.path.join(data_dir, f"TEMPO_{product_type}_*.nc")
-        file_list = glob.glob(pattern)
-
-        # If no file is found, output a message to console (if enabled) and skip processing
-        if not file_list:
-            if log_to_console:
-                print(f"No file found for product '{product_type}'. Skipping.")
+        file_path = os.path.join(data_dir, clean_fname)
+        if not os.path.exists(file_path):
+            print(f"[ERROR] File {file_path} does not exist. Skipping.")
             continue
 
-        # Initialize a logger for this product only if files exist
         logger = get_logger(
             product_type, log_level, log_to_console, log_to_file, log_file_path
         )
         log_msg(f"Processing product '{product_type}'", logger)
-
-        # Use the first file found for this product (could be extended to process all files)
-        file_path = file_list[0]
         log_msg(f"File: {file_path}", logger)
 
-        # Extract metadata from the filename for logging purposes
         filename = os.path.basename(file_path)
         metadata = parse_granule_filename(filename)
+        print(f"[INFO] Parsed metadata: {metadata}")
         log_msg("Metadata extracted from filename:", logger)
         log_msg(f"  Instrument: {metadata['instrument']}", logger)
         log_msg(f"  Product: {metadata['product']}", logger)
@@ -265,35 +243,44 @@ def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
         log_msg(f"  Sequence: {metadata['sequence']}", logger)
 
         granule_level = metadata["level"]
-        # Obtain the filtering rules from the configuration
         product_filters = config[product_type]["filters"]["pixel_filter"]
-        primary_full_paths = {rule["target_var"] for rule in product_filters}
-        secondary_full_paths = {rule["criteria_var"] for rule in product_filters}
+        print(
+            f"[INFO] Applying {len(product_filters)} filter rule(s) to product '{product_type}'..."
+        )
+        # primary_full_paths = {rule["target_var"] for rule in product_filters}
+        # secondary_full_paths = {rule["criteria_var"] for rule in product_filters}
 
-        # Identify the groups (or sub-structures) needed from the netCDF file
+        # only keep the rules that should run on this granule (Fixed on 7/31/2025)
+        applicable = [
+            rule
+            for rule in product_filters
+            if rule["level"] == "all" or rule["level"] == granule_level
+        ]
+
+        primary_full_paths = {rule["target_var"] for rule in applicable}
+        secondary_full_paths = {rule["criteria_var"] for rule in applicable}
+
         groups_to_open = set()
         for fp in primary_full_paths.union(secondary_full_paths):
             grp, _ = parse_full_path(fp)
             groups_to_open.add(grp)
 
-        # Open each required group using xarray for easier data handling
         opened_groups = {
             grp: xr.open_dataset(file_path, group=grp) for grp in groups_to_open
         }
 
-        # Extract primary and secondary variables from each group
-        primary_vars = {}
-        for fp in primary_full_paths:
-            grp, var_name = parse_full_path(fp)
-            if var_name not in excluded_variables:
-                primary_vars[fp] = opened_groups[grp][var_name]
+        primary_vars = {
+            fp: opened_groups[grp][var_name]
+            for fp in primary_full_paths
+            if (grp := parse_full_path(fp)[0])
+            and (var_name := parse_full_path(fp)[1]) not in excluded_variables
+        }
 
-        secondary_vars = {}
-        for fp in secondary_full_paths:
-            grp, var_name = parse_full_path(fp)
-            secondary_vars[fp] = opened_groups[grp][var_name]
+        secondary_vars = {
+            fp: opened_groups[parse_full_path(fp)[0]][parse_full_path(fp)[1]]
+            for fp in secondary_full_paths
+        }
 
-        # Log summary statistics (min, max, NaNs) for primary variables before filtering
         log_msg("Before applying filters:", logger)
         for fp, arr in primary_vars.items():
             min_val = float(arr.min().values)
@@ -306,21 +293,16 @@ def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
             )
 
         any_filter_applied = False
-        # Iterate over each filter rule in sorted order based on the rule key (converted to int for sorting)
         for idx, rule in enumerate(product_filters, start=1):
-            rule_key = str(idx)  # Use the index as a string for logging if needed
+            rule_key = str(idx)
             primary_full_path = rule["target_var"]
             secondary_full_path = rule["criteria_var"]
             filter_level = rule["level"]
-            # Use a membership test to decide if the filter should be applied.
-            # If the filter level is not "all" and does not match the granule level, skip it.
             if filter_level not in ("all", granule_level):
                 log_msg(
-                    f"Skipping filter rule '{rule_key}' due to level mismatch.",
-                    logger,
+                    f"Skipping filter rule '{rule_key}' due to level mismatch.", logger
                 )
                 continue
-            # Skip the filter if the primary variable is excluded
             if primary_full_path in excluded_variables:
                 log_msg(
                     f"Skipping filter rule '{rule_key}' as primary variable '{primary_full_path}' is excluded.",
@@ -334,11 +316,9 @@ def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
                 float(rule["target_value"]) if rule["target_value"] != "nan" else np.nan
             )
 
-            # Apply the filtering logic if the primary variable is present.
             if primary_full_path in primary_vars:
                 primary_array = primary_vars[primary_full_path]
                 secondary_array = secondary_vars[secondary_full_path]
-                # Construct a boolean mask based on the operator and threshold.
                 if operator == "greater-than":
                     mask = secondary_array > threshold
                 elif operator == "less-than":
@@ -351,20 +331,24 @@ def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
                     raise FilteringUtilityError(
                         f"Unsupported operator '{operator}' in rule '{rule_key}'."
                     )
+
                 sec_non_nan_count = int(primary_array.where(mask).notnull().sum())
                 log_msg(
                     f"Filter rule '{rule_key}': secondary variable '{secondary_full_path}' non-nan count = {sec_non_nan_count}",
                     logger,
                 )
-                # If no pixels meet the criteria, skip this rule.
                 if sec_non_nan_count == 0:
                     log_msg("No pixels to filter for this rule. Skipping.", logger)
                     continue
-                # Apply filtering: if target_value is NaN, mark the pixel as filtered (NaN);
-                # otherwise, clamp the pixel value to target_value.
                 if np.isnan(target_value):
+                    print(
+                        f"[FILTER] Applying NaN mask to variable '{primary_full_path}'"
+                    )
                     filtered_array = primary_array.where(~mask)
                 else:
+                    print(
+                        f"[FILTER] Clamping values of '{primary_full_path}' to {target_value}"
+                    )
                     non_nan_mask = primary_array.notnull()
                     filtered_array = primary_array.where(
                         ~(mask & non_nan_mask), target_value
@@ -375,7 +359,6 @@ def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
         if not any_filter_applied:
             log_msg("No filters applied. Copying original data.", logger)
 
-        # Log primary variable statistics after filtering
         log_msg("After applying filters:", logger)
         for fp, arr in primary_vars.items():
             min_val = float(arr.min().values)
@@ -387,22 +370,19 @@ def process_products(settings: Dict[str, Any], config: Dict[str, Any]) -> None:
                 logger,
             )
 
-        # Save the filtered output to a new netCDF file
         base_name = os.path.basename(os.path.splitext(file_path)[0])
         new_file_path = os.path.join(output_dir, base_name + "_filtered.nc")
+        print(f"[WRITE] Writing filtered file to: {new_file_path}")
         src_nc = ncDataset(file_path, "r")
         dst_nc = ncDataset(new_file_path, "w")
-        # Copy global attributes from the original file
         for attr in src_nc.ncattrs():
             dst_nc.setncattr(attr, src_nc.getncattr(attr))
-        # Copy the data (with any filtering applied) from the original file to the new file
         copy_group(src_nc, dst_nc, "", primary_vars, excluded_variables, logger)
         dst_nc.close()
         src_nc.close()
+        print("[INFO] Done writing filtered file and closing datasets.")
         log_msg(f"Filtered file saved as: {new_file_path}", logger)
-        # Compare the original and filtered files for verification
-        compare_nc_files(file_path, new_file_path, logger)
-        # Close all opened groups to free resources
+
         for ds in opened_groups.values():
             ds.close()
         log_msg("=" * 60, logger)

@@ -104,7 +104,11 @@ def compare_nc_groups(
                         )
         src_data = var[:]
         filt_data = filt_var[:]
-        valid_mask = ~np.isnan(filt_data)
+        # valid_mask = ~np.isnan(filt_data)
+        # new — coerce to float and then make your mask
+        filt_arr = np.asarray(filt_data, dtype=float)
+        nan_mask = np.isnan(filt_arr)
+        valid_mask = np.logical_not(nan_mask)
         if not np.allclose(src_data[valid_mask], filt_data[valid_mask], atol=1e-8):
             log_msg(
                 f"Data differences detected in variable '{var_name}' in group '{current_group}' for non-NaN values.",

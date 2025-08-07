@@ -48,6 +48,98 @@
       }
     }
   },
+<<<<<<< Updated upstream
+=======
+"O3PROF": {
+  "filters": {
+    "pixel_filter": [
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "support_data/eff_cloud_fraction",
+        "operator": "less-than",
+        "threshold": "0.5",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "geolocation/solar_zenith_angle",
+        "operator": "greater-than",
+        "threshold": "80",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "geolocation/viewing_zenith_angle",
+        "operator": "less-than",
+        "threshold": "80",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "qa_statistics/fit_RMS",
+        "operator": "less-than",
+        "threshold": "3",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "qa_statistics/avg_residual",
+        "operator": "less-than",
+        "threshold": "0.3",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "support_data/eff_cloud_fraction",
+        "operator": "less-than",
+        "threshold": "0.5",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "geolocation/solar_zenith_angle",
+        "operator": "greater-than",
+        "threshold": "80",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "geolocation/viewing_zenith_angle",
+        "operator": "less-than",
+        "threshold": "80",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "qa_statistics/fit_RMS",
+        "operator": "less-than",
+        "threshold": "3",
+        "target_value": "nan",
+        "level": "all"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "qa_statistics/avg_residual",
+        "operator": "less-than",
+        "threshold": "0.3",
+        "target_value": "nan",
+        "level": "all"
+      }
+    ],
+    "variable_exclusion": {
+      "excluded_variables": []
+    }
+  }
+},
+>>>>>>> Stashed changes
   "CLDO4": {
     "filters": {
       "pixel_filter": [
