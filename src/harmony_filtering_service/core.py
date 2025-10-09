@@ -311,7 +311,12 @@ def process_products(
                 continue
 
             operator = rule["operator"]
-            threshold = float(rule["threshold"])
+
+            # If it fails, treat it as a single value
+            try:
+                threshold = float(rule["threshold"])
+            except (ValueError, TypeError):
+                pass
             target_value = (
                 float(rule["target_value"]) if rule["target_value"] != "nan" else np.nan
             )
@@ -327,6 +332,8 @@ def process_products(
                     mask = secondary_array >= threshold
                 elif operator == "less-than-or-equal-to":
                     mask = secondary_array <= threshold
+                elif operator == "in":
+                    mask = ~np.isin(secondary_array, rule["threshold"])
                 else:
                     raise FilteringUtilityError(
                         f"Unsupported operator '{operator}' in rule '{rule_key}'."
