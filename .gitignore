@@ -94,3 +94,6 @@ docs/data/
 
 # Prevent large static/non-code files from creeping in
 *.nc
+
+.DS_Store
+*.bk

@@ -1,8 +1,0 @@
-# .snyk
-version: v1.18.0
-ignore:
-  # temporarily suppress low-severity numpy advisory
-  "pyup.io-34014":
-    - "*"
-patch:
-  # you can provide patches here, if needed
