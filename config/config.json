@@ -12,12 +12,36 @@
         },
         {
           "target_var": "product/column_amount_o3",
+          "criteria_var": "geolocation/viewing_zenith_angle",
+          "operator": "greater-than",
+          "threshold": "80",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/column_amount_o3",
           "criteria_var": "product/quality_flag",
-          "operator": "greater-than-or-equal-to",
-          "threshold": "4096",
+          "operator": "in",
+          "threshold": [0, 1, 2, 5],
           "target_value": "nan",
           "level": "2"
         },
+        {
+          "target_var": "product/column_amount_o3",
+          "criteria_var": "product/column_amount_o3",
+          "operator": "less-than",
+          "threshold": "100",
+          "target_value": "100",
+          "level": "all"
+        },
+        {
+          "target_var": "product/column_amount_o3",
+          "criteria_var": "product/column_amount_o3",
+          "operator": "greater-than",
+          "threshold": "500",
+          "target_value": "500",
+          "level": "all"
+        },                
         {
           "target_var": "product/fc",
           "criteria_var": "geolocation/solar_zenith_angle",
@@ -26,6 +50,22 @@
           "target_value": "nan",
           "level": "all"
         },
+        {
+          "target_var": "product/fc",
+          "criteria_var": "product/fc",
+          "operator": "less-than",
+          "threshold": "0",
+          "target_value": "0",
+          "level": "all"
+        },
+        {
+          "target_var": "product/fc",
+          "criteria_var": "product/fc",
+          "operator": "greater-than",
+          "threshold": "1",
+          "target_value": "1",
+          "level": "all"
+        },        
         {
           "target_var": "product/uv_aerosol_index",
           "criteria_var": "geolocation/solar_zenith_angle",
@@ -41,22 +81,36 @@
           "threshold": "80",
           "target_value": "nan",
           "level": "all"
-        }
+        },
+        {
+          "target_var": "product/uv_aerosol_index",
+          "criteria_var": "product/uv_aerosol_index",
+          "operator": "less-than",
+          "threshold": "0",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/uv_aerosol_index",
+          "criteria_var": "product/uv_aerosol_index",
+          "operator": "greater-than",
+          "threshold": "5",
+          "target_value": "5",
+          "level": "all"
+        }        
       ],
       "variable_exclusion": {
         "excluded_variables": []
       }
     }
   },
-<<<<<<< Updated upstream
-=======
 "O3PROF": {
   "filters": {
     "pixel_filter": [
       {
         "target_var": "product/total_ozone_column",
         "criteria_var": "support_data/eff_cloud_fraction",
-        "operator": "less-than",
+        "operator": "greater-than",
         "threshold": "0.5",
         "target_value": "nan",
         "level": "all"
@@ -72,7 +126,7 @@
       {
         "target_var": "product/total_ozone_column",
         "criteria_var": "geolocation/viewing_zenith_angle",
-        "operator": "less-than",
+        "operator": "greater-than",
         "threshold": "80",
         "target_value": "nan",
         "level": "all"
@@ -80,23 +134,55 @@
       {
         "target_var": "product/total_ozone_column",
         "criteria_var": "qa_statistics/fit_RMS",
-        "operator": "less-than",
+        "operator": "greater-than",
         "threshold": "3",
         "target_value": "nan",
+        "level": "2"
+      },
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "qa_statistics/avg_residuals",
+        "operator": "greater-than",
+        "threshold": "0.3",
+        "target_value": "nan",
+        "level": "2"
+      },
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "qa_statistics/exit_status",
+        "operator": "less-than",
+        "threshold": "1",
+        "target_value": "nan",
+        "level": "2"
+      },
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "qa_statistics/exit_status",
+        "operator": "greater-than",
+        "threshold": "99",
+        "target_value": "nan",
+        "level": "2"
+      },
+      {
+        "target_var": "product/total_ozone_column",
+        "criteria_var": "product/total_ozone_column",
+        "operator": "less-than",
+        "threshold": "100",
+        "target_value": "100",
         "level": "all"
       },
       {
         "target_var": "product/total_ozone_column",
-        "criteria_var": "qa_statistics/avg_residual",
-        "operator": "less-than",
-        "threshold": "0.3",
-        "target_value": "nan",
+        "criteria_var": "product/total_ozone_column",
+        "operator": "greater-than",
+        "threshold": "500",
+        "target_value": "500",
         "level": "all"
-      },
+      },       
       {
         "target_var": "product/troposphere_ozone_column",
         "criteria_var": "support_data/eff_cloud_fraction",
-        "operator": "less-than",
+        "operator": "greater-than",
         "threshold": "0.5",
         "target_value": "nan",
         "level": "all"
@@ -112,7 +198,7 @@
       {
         "target_var": "product/troposphere_ozone_column",
         "criteria_var": "geolocation/viewing_zenith_angle",
-        "operator": "less-than",
+        "operator": "greater-than",
         "threshold": "80",
         "target_value": "nan",
         "level": "all"
@@ -120,26 +206,57 @@
       {
         "target_var": "product/troposphere_ozone_column",
         "criteria_var": "qa_statistics/fit_RMS",
-        "operator": "less-than",
+        "operator": "greater-than",
         "threshold": "3",
         "target_value": "nan",
+        "level": "2"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "qa_statistics/avg_residuals",
+        "operator": "greater-than",
+        "threshold": "0.3",
+        "target_value": "nan",
+        "level": "2"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "qa_statistics/exit_status",
+        "operator": "less-than",
+        "threshold": "1",
+        "target_value": "nan",
+        "level": "2"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "qa_statistics/exit_status",
+        "operator": "greater-than",
+        "threshold": "99",
+        "target_value": "nan",
+        "level": "2"
+      },
+      {
+        "target_var": "product/troposphere_ozone_column",
+        "criteria_var": "product/troposphere_ozone_column",
+        "operator": "less-than",
+        "threshold": "10",
+        "target_value": "10",
         "level": "all"
       },
       {
         "target_var": "product/troposphere_ozone_column",
-        "criteria_var": "qa_statistics/avg_residual",
-        "operator": "less-than",
-        "threshold": "0.3",
-        "target_value": "nan",
+        "criteria_var": "product/troposphere_ozone_column",
+        "operator": "greater-than",
+        "threshold": "70",
+        "target_value": "70",
         "level": "all"
-      }
+      }           
     ],
     "variable_exclusion": {
       "excluded_variables": []
     }
   }
 },
->>>>>>> Stashed changes
   "CLDO4": {
     "filters": {
       "pixel_filter": [
@@ -152,13 +269,45 @@
           "level": "all"
         },
         {
+          "target_var": "product/cloud_fraction",
+          "criteria_var": "product/cloud_fraction",
+          "operator": "less-than",
+          "threshold": "0",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/cloud_fraction",
+          "criteria_var": "product/cloud_fraction",
+          "operator": "greater-than",
+          "threshold": "1",
+          "target_value": "nan",
+          "level": "all"
+        },        
+        {
           "target_var": "product/cloud_pressure",
           "criteria_var": "geolocation/solar_zenith_angle",
           "operator": "greater-than",
           "threshold": "80",
           "target_value": "nan",
           "level": "all"
-        }
+        },
+        {
+          "target_var": "product/cloud_pressure",
+          "criteria_var": "product/cloud_pressure",
+          "operator": "less-than",
+          "threshold": "0",
+          "target_value": "nan",
+          "level": "all"
+        },
+        {
+          "target_var": "product/cloud_pressure",
+          "criteria_var": "product/cloud_pressure",
+          "operator": "greater-than",
+          "threshold": "1100",
+          "target_value": "nan",
+          "level": "all"
+        }        
       ],
       "variable_exclusion": {
         "excluded_variables": []
@@ -191,6 +340,22 @@
           "threshold": "80",
           "target_value": "nan",
           "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column",
+          "criteria_var": "product/vertical_column",
+          "operator": "less-than",
+          "threshold": "0",
+          "target_value": "0",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column",
+          "criteria_var": "product/vertical_column",
+          "operator": "greater-than",
+          "threshold": "3e16",
+          "target_value": "3e16",
+          "level": "all"
         }
       ],
       "variable_exclusion": {
@@ -218,6 +383,22 @@
           "level": "all"
         },
         {
+          "target_var": "product/vertical_column_stratosphere",
+          "criteria_var": "product/vertical_column_stratosphere",
+          "operator": "less-than",
+          "threshold": "0.5e15",
+          "target_value": "0.5e15",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column_stratosphere",
+          "criteria_var": "product/vertical_column_stratosphere",
+          "operator": "greater-than",
+          "threshold": "5e15",
+          "target_value": "5e15",
+          "level": "all"
+        },        
+        {
           "target_var": "product/vertical_column_troposphere",
           "criteria_var": "product/main_data_quality_flag",
           "operator": "greater-than",
@@ -240,7 +421,23 @@
           "threshold": "80",
           "target_value": "nan",
           "level": "all"
-        }
+        },
+        {
+          "target_var": "product/vertical_column_troposphere",
+          "criteria_var": "product/vertical_column_troposphere",
+          "operator": "less-than",
+          "threshold": "0",
+          "target_value": "0",
+          "level": "all"
+        },
+        {
+          "target_var": "product/vertical_column_troposphere",
+          "criteria_var": "product/vertical_column_troposphere",
+          "operator": "greater-than",
+          "threshold": "3e16",
+          "target_value": "3e16",
+          "level": "all"
+        }        
       ],
       "variable_exclusion": {
         "excluded_variables": []

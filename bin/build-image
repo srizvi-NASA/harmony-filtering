@@ -27,20 +27,6 @@ fi
 # Clean out old images first
 ./bin/clean-images
 
-# Build the service image for linux/amd64 and tag both with the version and "latest"
-<<<<<<< Updated upstream
-# docker build \
-#   --platform linux/amd64 \
-#   -f docker/service.Dockerfile \
-#   -t "${IMAGE}:${TAG}" \
-#   -t "${IMAGE}:latest" \
-#   .
-
-#echo "✅  Built ${IMAGE}:${TAG} and ${IMAGE}:latest for linux/amd64"
-
-
-
-
 # Build the service image, tagging both with the version and "latest"
 docker build --platform linux/amd64 \
   -f docker/service.Dockerfile \
@@ -49,13 +35,3 @@ docker build --platform linux/amd64 \
   .
 
 echo "Built ${IMAGE}:${TAG} and ${IMAGE}:latest"
-=======
- docker build \
-   --platform linux/amd64 \
-   -f docker/service.Dockerfile \
-   -t "${IMAGE}:${TAG}" \
-   -t "${IMAGE}:latest" \
-   .
-
-echo "✅  Built ${IMAGE}:${TAG} and ${IMAGE}:latest for linux/amd64"
->>>>>>> Stashed changes

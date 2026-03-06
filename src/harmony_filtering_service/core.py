@@ -18,6 +18,21 @@ from harmony_filtering_service.exceptions import FilteringUtilityError
 from harmony_filtering_service.logger import get_logger, log_msg
 
 
+def all_primary_vars_blank(
+    primary_vars: Dict[str, xr.DataArray], myvariable: str
+) -> bool:
+    """
+    Returns True if the specified variable (myvariable) is completely NaN.
+    """
+    if myvariable not in primary_vars:
+        raise FilteringUtilityError(
+            f"Variable '{myvariable}' not found in primary variables"
+        )
+
+    arr = primary_vars[myvariable]
+    return int(arr.notnull().sum()) == 0  # True if all values are NaN
+
+
 def parse_granule_filename(filename: str) -> Dict[str, str]:
     """
     Parse a TEMPO granule filename and extract metadata.
@@ -121,6 +136,20 @@ def copy_group(
             )
             continue
 
+        ## 🚫 Skip variables with more than 2 dimensions
+        # if len(var.dimensions) > 2:
+        #    print(
+        #        f"Skipping variable '{full_var_path}' with {len(var.dimensions)} dimensions (expected ≤2D, got {var.dimensions})."
+        #    )
+        #    continue
+
+        ## 🚫 Skip logic to also ignore string-type arrays
+        # if var.datatype.kind in {"S", "U"}:  # string or unicode
+        #    print(
+        #        f"Skipping string variable '{full_var_path}' (type {var.datatype})"
+        #    )
+        #    continue
+
         filters = var.filters() or {}
         zlib_flag = filters.get("zlib", False)
         complevel = filters.get("complevel", None)
@@ -164,8 +193,17 @@ def copy_group(
 
         # Determine if there's filtered data for this variable; if so, use it; otherwise, copy original data.
         key = f"{current_group}/{var_name}" if current_group else var_name
+
+        # if key in filtered_primary:
+        #    dst_var[:] = filtered_primary[key].values
+        # else:
+        #    dst_var[:] = var[:]
+
         if key in filtered_primary:
-            dst_var[:] = filtered_primary[key].values
+            data = filtered_primary[key].values
+            if data.shape != dst_var.shape:
+                data = np.squeeze(data)
+            dst_var[:] = data
         else:
             dst_var[:] = var[:]
 
@@ -190,7 +228,7 @@ def copy_group(
 
 
 def process_products(
-    settings: Dict[str, Any], config: Dict[str, Any], clean_fname: str
+    settings: Dict[str, Any], config: Dict[str, Any], clean_fname: str, myvariable: str
 ) -> None:
     """
     Main processing loop for filtering products.
@@ -269,12 +307,30 @@ def process_products(
             grp: xr.open_dataset(file_path, group=grp) for grp in groups_to_open
         }
 
+        # Commented on 9/30/25
         primary_vars = {
             fp: opened_groups[grp][var_name]
             for fp in primary_full_paths
             if (grp := parse_full_path(fp)[0])
             and (var_name := parse_full_path(fp)[1]) not in excluded_variables
         }
+
+        print(f"[SSSyed] '{primary_vars}'...")
+
+        # ✅ Only keep the Harmony-requested variable(s)
+        #########requested_vars = [myvariable]  # passed in from adapter
+        # primary_vars = {
+        #     fp: opened_groups[parse_full_path(fp)[0]][parse_full_path(fp)[1]]
+        #     for fp in primary_full_paths
+        #     if fp in requested_vars and fp not in excluded_variables
+        # }
+
+        # # Load ONLY the Harmony-requested variable (myvariable)
+        # primary_vars = {
+        #     fp: opened_groups[parse_full_path(fp)[0]][parse_full_path(fp)[1]]
+        #     for fp in primary_full_paths
+        #     if fp == myvariable and fp not in excluded_variables
+        # }
 
         secondary_vars = {
             fp: opened_groups[parse_full_path(fp)[0]][parse_full_path(fp)[1]]
@@ -311,22 +367,36 @@ def process_products(
                 continue
 
             operator = rule["operator"]
-            threshold = float(rule["threshold"])
+            threshold = rule["threshold"]  # can be float or list
             target_value = (
                 float(rule["target_value"]) if rule["target_value"] != "nan" else np.nan
             )
+
+            # Normalize threshold: if list, keep it as list; if single value, cast to float
+            if isinstance(threshold, list):
+                thresholds = [float(t) for t in threshold]
+            else:
+                thresholds = [float(threshold)]
 
             if primary_full_path in primary_vars:
                 primary_array = primary_vars[primary_full_path]
                 secondary_array = secondary_vars[secondary_full_path]
                 if operator == "greater-than":
-                    mask = secondary_array > threshold
+                    mask = secondary_array > thresholds[0]
                 elif operator == "less-than":
-                    mask = secondary_array < threshold
+                    mask = secondary_array < thresholds[0]
                 elif operator == "greater-than-or-equal-to":
-                    mask = secondary_array >= threshold
+                    mask = secondary_array >= thresholds[0]
                 elif operator == "less-than-or-equal-to":
-                    mask = secondary_array <= threshold
+                    mask = secondary_array <= thresholds[0]
+                elif operator == "equal-to":
+                    mask = secondary_array == thresholds[0]
+                elif operator == "not-equal-to":
+                    mask = secondary_array != thresholds[0]
+                elif operator == "in":
+                    mask = ~secondary_array.isin(
+                        thresholds
+                    )  # TRUE where NOT in [0,1,2,5]
                 else:
                     raise FilteringUtilityError(
                         f"Unsupported operator '{operator}' in rule '{rule_key}'."
@@ -340,20 +410,37 @@ def process_products(
                 if sec_non_nan_count == 0:
                     log_msg("No pixels to filter for this rule. Skipping.", logger)
                     continue
+                # if np.isnan(target_value):
+                #     print(
+                #         f"[FILTER] Applying NaN mask to variable '{primary_full_path}'"
+                #     )
+                #     filtered_array = primary_array.where(~mask)
+                # else:
+                #     print(
+                #         f"[FILTER] Clamping values of '{primary_full_path}' to {target_value}"
+                #     )
+                #     non_nan_mask = primary_array.notnull()
+                #     filtered_array = primary_array.where(
+                #         ~(mask & non_nan_mask), target_value
+                #     )
+
+                # --- SAFE NAN-PROTECTING FILTER ---
+                nan_mask = primary_array.isnull()
+
                 if np.isnan(target_value):
-                    print(
-                        f"[FILTER] Applying NaN mask to variable '{primary_full_path}'"
-                    )
-                    filtered_array = primary_array.where(~mask)
+                    # Apply NaN ONLY to mask pixels that were not originally NaN
+                    filtered_array = xr.where(mask & ~nan_mask, np.nan, primary_array)
+
                 else:
-                    print(
-                        f"[FILTER] Clamping values of '{primary_full_path}' to {target_value}"
+                    # Clamp only VALID pixels; never overwrite original NaNs
+                    filtered_array = xr.where(
+                        nan_mask,
+                        np.nan,
+                        xr.where(mask & ~nan_mask, target_value, primary_array),
                     )
-                    non_nan_mask = primary_array.notnull()
-                    filtered_array = primary_array.where(
-                        ~(mask & non_nan_mask), target_value
-                    )
+
                 primary_vars[primary_full_path] = filtered_array
+
                 any_filter_applied = True
 
         if not any_filter_applied:
@@ -369,6 +456,25 @@ def process_products(
                 f"  Primary variable '{var_name}': min = {min_val}, max = {max_val}, total NaNs = {total_nan}",
                 logger,
             )
+
+        print("SRR_Primary_vars keys:", list(primary_vars.keys()))
+        print("Syed_Checking key:", myvariable)
+
+        # After logging "After applying filters:"
+        if all_primary_vars_blank(primary_vars, myvariable):
+            print(
+                f"[WARNING_blank_file_1] Variable '{myvariable}' is completely blank after filtering in '{filename}'. Skipping file creation."
+            )
+            # Close opened xarray datasets before skipping
+            for ds in opened_groups.values():
+                ds.close()
+            log_msg(
+                f"Skipped file '{filename}' because '{myvariable}' was entirely NaN after filtering.",
+                logger,
+            )
+            log_msg("=" * 60, logger)
+            logger.close()
+            continue  # 🚫 Do not proceed to file creation
 
         base_name = os.path.basename(os.path.splitext(file_path)[0])
         new_file_path = os.path.join(output_dir, base_name + "_filtered.nc")
