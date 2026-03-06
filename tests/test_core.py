@@ -144,9 +144,9 @@ def test_process_products(sample_nc_file):
     filtered_ds.close()
 
     # Verify that the filtering increased the number of NaN values in the variable.
-    assert (
-        filtered_nan_count > orig_nan_count
-    ), f"Expected more NaN values after filtering (original: {orig_nan_count}, filtered: {filtered_nan_count})."
+    assert filtered_nan_count > orig_nan_count, (
+        f"Expected more NaN values after filtering (original: {orig_nan_count}, filtered: {filtered_nan_count})."
+    )
 
     # If the test settings indicate cleanup, remove the sample and filtered files.
     if settings.get("test", {}).get("remove_after_test", False):
@@ -226,9 +226,9 @@ def test_load_and_validate_config_success(tmp_path):
 
     # Validate the settings.
     result = load_and_validate_config(str(settings_file), str(schema_file))
-    assert (
-        result == valid_settings
-    ), "The validated settings should match the original valid settings"
+    assert result == valid_settings, (
+        "The validated settings should match the original valid settings"
+    )
 
 
 def test_load_and_validate_config_failure(tmp_path):

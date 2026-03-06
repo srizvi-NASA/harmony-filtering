@@ -41,7 +41,7 @@
           "threshold": "500",
           "target_value": "500",
           "level": "all"
-        },                
+        },
         {
           "target_var": "product/fc",
           "criteria_var": "geolocation/solar_zenith_angle",
@@ -65,7 +65,7 @@
           "threshold": "1",
           "target_value": "1",
           "level": "all"
-        },        
+        },
         {
           "target_var": "product/uv_aerosol_index",
           "criteria_var": "geolocation/solar_zenith_angle",
@@ -97,7 +97,7 @@
           "threshold": "5",
           "target_value": "5",
           "level": "all"
-        }        
+        }
       ],
       "variable_exclusion": {
         "excluded_variables": []
@@ -178,7 +178,7 @@
         "threshold": "500",
         "target_value": "500",
         "level": "all"
-      },       
+      },
       {
         "target_var": "product/troposphere_ozone_column",
         "criteria_var": "support_data/eff_cloud_fraction",
@@ -250,7 +250,7 @@
         "threshold": "70",
         "target_value": "70",
         "level": "all"
-      }           
+      }
     ],
     "variable_exclusion": {
       "excluded_variables": []
@@ -283,7 +283,7 @@
           "threshold": "1",
           "target_value": "nan",
           "level": "all"
-        },        
+        },
         {
           "target_var": "product/cloud_pressure",
           "criteria_var": "geolocation/solar_zenith_angle",
@@ -307,7 +307,7 @@
           "threshold": "1100",
           "target_value": "nan",
           "level": "all"
-        }        
+        }
       ],
       "variable_exclusion": {
         "excluded_variables": []
@@ -397,7 +397,7 @@
           "threshold": "5e15",
           "target_value": "5e15",
           "level": "all"
-        },        
+        },
         {
           "target_var": "product/vertical_column_troposphere",
           "criteria_var": "product/main_data_quality_flag",
@@ -437,7 +437,7 @@
           "threshold": "3e16",
           "target_value": "3e16",
           "level": "all"
-        }        
+        }
       ],
       "variable_exclusion": {
         "excluded_variables": []

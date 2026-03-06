@@ -2,4 +2,3 @@
 # build & run tests in one go
 ./bin/build-test "$@"
 docker run --rm harmony/filtering-test:${1:-$(<docker/service_version.txt)}
-

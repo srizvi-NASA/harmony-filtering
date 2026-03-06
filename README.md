@@ -6,18 +6,18 @@ The **Harmony Filtering Service** is a microservice in the NASA Harmony ecosyste
 
 ## Table of Contents
 
-- [Key Features](#key-features)  
-- [Getting Started](#getting-started)  
-  - [Prerequisites](#prerequisites)  
-  - [Installation](#installation)  
-- [Configuration](#configuration)  
-- [Running the Service](#running-the-service)  
-- [API Reference](#api-reference)  
-- [Logging & Monitoring](#logging--monitoring)  
-- [Testing](#testing)  
-- [Deployment](#deployment)  
-- [Contributing](#contributing)  
-- [License](#license)  
+- [Key Features](#key-features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Configuration](#configuration)
+- [Running the Service](#running-the-service)
+- [API Reference](#api-reference)
+- [Logging & Monitoring](#logging--monitoring)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
@@ -34,23 +34,23 @@ The **Harmony Filtering Service** is a microservice in the NASA Harmony ecosyste
 ## Getting Started
 
 ### Prerequisites
- 
-- **Python 3.9+** (if Python-based)  
-- **Docker & Docker Compose** (for containerized local runs)  
+
+- **Python 3.9+** (if Python-based)
+- **Docker & Docker Compose** (for containerized local runs)
 - **Access to Harmony’s EDL credentials** (for upstream authentication)
 
 ### Installation
 
-1. **Clone the Harmony repo**  
+1. **Clone the Harmony repo**
    ```bash
    git clone https://github.com/nasa/harmony.git
    cd harmony/filtering-service
 
-2. **Install Python deps**  
+2. **Install Python deps**
    ```bash
    pip install -r requirements.txt
 
-3. **Build Docker Image**  
+3. **Build Docker Image**
    ```bash
    docker build -t harmony-filtering-service:local .
 
@@ -77,6 +77,3 @@ The **Harmony Filtering Service** is a microservice in the NASA Harmony ecosyste
 ## Testing
    ```bash
     poetry run pytest
-    
-
-

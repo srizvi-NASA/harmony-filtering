@@ -8,8 +8,7 @@ import time
 import unittest
 from io import StringIO
 
-from harmony_filtering_service.logger import (DummyLogger, Logger, get_logger,
-                                              log_msg)
+from harmony_filtering_service.logger import DummyLogger, Logger, get_logger, log_msg
 
 # pylint: disable=missing-class-docstring, missing-function-docstring, missing-function-docstring
 # pylint: disable=broad-exception-caught, redefined-outer-name, too-few-public-methods

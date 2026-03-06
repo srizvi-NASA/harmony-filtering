@@ -13,8 +13,9 @@ import xarray as xr
 from harmony_service_lib.util import download, stage
 from pystac import Asset, Item
 
-from harmony_filtering_service.adapter_utils import \
-    load_and_prepare_settings  # see below
+from harmony_filtering_service.adapter_utils import (
+    load_and_prepare_settings,
+)  # see below
 from harmony_filtering_service.core import process_products
 from harmony_filtering_service.exceptions import FilteringUtilityError
 
